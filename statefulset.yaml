@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: id-generator
+spec:
+  replicas: 4  # Number of pods
+  serviceName: "id-generator"   # Must match the Headless Service above
+  selector:
+    matchLabels:
+      app: id-generator
+  template:
+    metadata:
+      labels:
+        app: id-generator
+    spec:
+      containers:
+      - name: id-generator-container
+        image: id-generator:latest  # Will build this locally
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8000
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName  # Auto-assign node name
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name  # Auto-assign pod name
