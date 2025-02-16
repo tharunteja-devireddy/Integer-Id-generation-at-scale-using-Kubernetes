@@ -44,8 +44,6 @@ When a pod requests a machine ID:
   - **Existing `idgen` services continue to work** until they **fail to send `MAX_HEARTBEAT_FAILURES` (5) consecutive heartbeats**.
   - After `MAX_HEARTBEAT_FAILURES`, each `idgen` will **release its machine ID**, reset the Snowflake generator, and enter wait mode until the Coordinator recovers.
 
----
-
 ## **ID Generation Service (`idgen`)**
 The **ID Generation Service** requests and maintains a unique machine ID from the Coordinator. It uses this ID to generate unique integer identifiers via the **Snowflake algorithm**.
 
@@ -125,13 +123,25 @@ If the network breaks:
 | **Duplicate ID detected** | Tags ID as unassigned | Releases ID, resets Snowflake generator, and requests new ID |
 | **Coordinator crashes** | ID map is lost, existing pods work until heartbeat failures trigger resets | If `MAX_HEARTBEAT_FAILURES` reached, resets ID and waits for Coordinator to recover |
 
----
 
-### **Final Thoughts**
-This updated documentation ensures that:
-✅ **Machine IDs are efficiently managed** and never reassigned too early.  
-✅ **ID Generation Service handles network failures gracefully** by self-recovering.  
-✅ **Duplicate ID usage is detected and corrected automatically.**  
-✅ **Pods do not hold IDs indefinitely, ensuring fairness and stability in the system.**  
 
-This **fault-tolerant design** ensures smooth operation even in **network failures, Coordinator crashes, or pod failures**. 🚀
+
+### Problems
+
+1. **Coordinator service loses its state or restarts**  
+   - When the coordinator restarts, it loses all knowledge of assigned machine IDs.  
+   - On its own, this is not a major issue. When existing ID services (that already have assigned machine IDs) send their heartbeats, the coordinator will see those IDs as “unassigned” and ask the services to release and re-request a new ID.  
+   - **However**, a problem arises if a new or existing pod requests a machine ID **before** those heartbeats are processed. In that case, the coordinator might inadvertently assign the **same** machine ID to two different pods because it no longer remembers the ID is already in use.  
+   - **Possible solution:** Persist the coordinator’s state to disk or a cache (e.g., Redis), so it can recover the assigned IDs after a restart.
+
+2. **Network partition between coordinator and an ID service**  
+   - If an ID service fails to send heartbeats (due to a partition), the coordinator concludes that the service is dead and “shelves” the ID, preventing immediate reassignment.  
+   - Even if the ID service is still running, it has no way to contact the coordinator. Eventually, if the service remains disconnected long enough, it will treat itself as having lost connectivity and (upon reconnect) release or re-request an ID.
+
+3. **Network partition followed by recovery**  
+   - Suppose the coordinator has already shelved the ID after missing heartbeats from an ID service. Later, that ID service recovers and attempts to reconnect.  
+   - At that point, the coordinator treats it as a new pod and assigns it a fresh machine ID from the pool, ensuring there is no conflict with the previously shelved ID.
+
+**Note**: 
+Under regular working conditions there is absolutely no way for two different pods to get the same machine ID. 
+The only time it may occur is during network or service failures which are handled by the system as described above.
