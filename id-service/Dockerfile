@@ -1,9 +1,11 @@
 FROM python:3.11-slim
 
 WORKDIR /app
-COPY . /app
+COPY .. /app
 
 RUN pip install -r requirements.txt
+
+RUN python3 -m pip uninstall pip
 
 EXPOSE 8000
 

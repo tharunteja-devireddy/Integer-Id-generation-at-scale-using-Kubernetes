@@ -28,3 +28,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name  # Auto-assign pod name
+        - name: POD_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid  # Auto-assign pod UID
