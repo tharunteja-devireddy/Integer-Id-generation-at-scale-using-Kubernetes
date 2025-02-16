@@ -1,6 +1,8 @@
 
 
 ```bash
+uvicorn coordinator-service.main:app --reload --host "0.0.0.0" --port 5000 --log-level debug
+uvicorn id-service.main:app --reload --host "0.0.0.0" --port 8000 --log-level debug
 
 
 curl -sfL https://get.k3s.io | sh -

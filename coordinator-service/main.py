@@ -1,17 +1,29 @@
-from fastapi import FastAPI, BackgroundTasks, HTTPException
-import asyncio
+
 import time
+import asyncio
 from bidict import bidict
+from fastapi import FastAPI, HTTPException
+from contextlib import asynccontextmanager
 
-app = FastAPI()
 
-# Constants
+
+# ID management Constants
 ID_POOL = set(range(1024))  # Pool of available machine IDs
 ASSIGNED_ID_POOL = set()  # IDs currently assigned
-ID_MAP = bidict({})  # Bi-directional map of machine ID <-> Pod UID
-HEARTBEAT_TRACKER = {}  # Tracks last heartbeat time per machine ID
-HEARTBEAT_DELAY = 30  # Time in seconds before marking a machine ID as dead
-SHELVE_TIME = 300  # 5 minutes before reassigning a dead ID
+ID_MAP = bidict({})  # Bidirectional map of machine ID <-> Pod UID
+
+# Heartbeat tracking Constants
+HEARTBEAT_TRACKER = {}            # Tracks last heartbeat time per machine ID
+HEARTBEAT_DELAY = 30              # Time in seconds before marking a machine ID as dead
+SHELVE_TIME = 120                 # 5 minutes before reassigning a dead ID
+EXPIRED_ID_CLEANUP_INTERVAL = 20  # Time in seconds between cleanup checks
+
+# Note: Condition to prevent duplicate ID assignment a network failure occurs between a pod and the coordinator
+# and the pod is still alive and serving requests.
+# HEARTBEAT_DELAY + SHELVE_TIME (coordinator service) > HEARTBEAT_INTERVAL * MAX_HEARTBEAT_FAILURES (id service)
+# 30 + 120 > 10 * 5
+
+
 LOCK = asyncio.Lock()
 
 
@@ -20,8 +32,8 @@ async def cleanup_expired_ids():
     while True:
         now = time.time()
         for machine_id, last_heartbeat in list(HEARTBEAT_TRACKER.items()):
-            if now - last_heartbeat > HEARTBEAT_DELAY:  # Mark as dead after 30s
-                print(f"Machine ID {machine_id} is inactive, shelving for 5 minutes.")
+            if now - last_heartbeat > HEARTBEAT_DELAY:
+                print(f"Machine ID {machine_id} is inactive, shelving for {SHELVE_TIME} seconds.")
                 del HEARTBEAT_TRACKER[machine_id]
                 del ID_MAP[machine_id]
                 ASSIGNED_ID_POOL.remove(machine_id)
@@ -30,20 +42,47 @@ async def cleanup_expired_ids():
                 await asyncio.sleep(SHELVE_TIME)
                 ID_POOL.add(machine_id)
                 print(f"Machine ID {machine_id} is now available for reassignment.")
-        await asyncio.sleep(10)  # Check every 10 seconds
+
+        await asyncio.sleep(EXPIRED_ID_CLEANUP_INTERVAL)
 
 
-@app.on_event("startup")
+async def shelve_id(machine_id: int):
+    """Shelve an ID before making it available again."""
+    await asyncio.sleep(SHELVE_TIME)
+    ID_POOL.add(machine_id)
+    print(f"Machine ID {machine_id} is available again.")
+
+
 async def startup_event():
     """Start background cleanup task on service startup."""
     asyncio.create_task(cleanup_expired_ids())
 
 
-@app.post("/request_id/")
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    # Startup logic
+    await startup_event()
+    yield
+    # Shutdown logic
+    # await some_shutdown_function()
+
+
+
+app = FastAPI(lifespan=lifespan)
+
+@app.get("/health/")
+async def health():
+    """Health check endpoint."""
+    return {"status": "OK"}
+
+
+
+@app.get("/request_id/")
 async def request_machine_id(pod_uid: str):
     """Assign a new machine ID to a pod."""
     async with LOCK:
         if pod_uid in ID_MAP.inverse:
+            print(f"Pod UID {pod_uid} already has a machine ID assigned.")
             return {"machine_id": ID_MAP.inverse[pod_uid], "status": "ID already assigned"}
 
         if ID_POOL:
@@ -51,15 +90,18 @@ async def request_machine_id(pod_uid: str):
             ID_MAP[machine_id] = pod_uid
             ASSIGNED_ID_POOL.add(machine_id)
             HEARTBEAT_TRACKER[machine_id] = time.time()
+
+            print(f"Machine ID {machine_id} assigned to Pod UID {pod_uid}")
             return {"machine_id": machine_id, "status": "ID assigned"}
 
     return {"status": "No ID available, retry in 5 minutes"}
 
 
-@app.post("/heartbeat/")
+@app.get("/heartbeat/")
 async def heartbeat(machine_id: int, pod_uid: str):
     """Receive heartbeat from ID services."""
     if machine_id not in ASSIGNED_ID_POOL:
+        print(f"Machine ID {machine_id} not assigned. Ignoring heartbeat...")
         return {"status": "not_assigned"}
 
     HEARTBEAT_TRACKER[machine_id] = time.time()
@@ -70,6 +112,7 @@ async def heartbeat(machine_id: int, pod_uid: str):
         print(f"Duplicate machine ID detected for {machine_id}! Stopping {pod_uid}...")
         return {"status": "duplicate_detected"}
 
+    print(f"Heartbeat received for Machine ID: {machine_id}")
     return {"status": "alive"}
 
 
@@ -78,7 +121,7 @@ async def release_machine_id(machine_id: int):
     """Manually release a machine ID."""
     async with LOCK:
         # These checks are needed as we should release an id in the event of duplicate detection and un assigned use
-        # and we dont know exactly in objects like ID_MAP and ASSIGNED_ID_POOL if the id is present or not
+        # , and we don't know exactly in objects like ID_MAP and ASSIGNED_ID_POOL if the id is present or not
         if machine_id in HEARTBEAT_TRACKER:
             del HEARTBEAT_TRACKER[machine_id]
         if machine_id in ID_MAP:
@@ -91,14 +134,12 @@ async def release_machine_id(machine_id: int):
     raise HTTPException(status_code=404, detail="Machine ID not found")
 
 
-async def shelve_id(machine_id: int):
-    """Shelve an ID before making it available again."""
-    await asyncio.sleep(SHELVE_TIME)
-    ID_POOL.add(machine_id)
-    print(f"Machine ID {machine_id} is available again.")
-
-
-@app.get("/health/")
-async def health():
-    """Health check endpoint."""
-    return {"status": "OK"}
+@app.get("/status/")
+async def status():
+    """Get the current status of the ID service."""
+    return {
+        "available_ids": len(ID_POOL),
+        "assigned_ids": list(ASSIGNED_ID_POOL),
+        "id_map": ID_MAP,
+        "heartbeat_tracker": HEARTBEAT_TRACKER,
+    }
