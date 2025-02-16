@@ -64,7 +64,7 @@ sudo kubectl delete -f ./kube/service.yaml
 sudo kubectl delete -f ./kube/ingress.yaml
 
 # Apply new files
-cd ./nkube
+cd ./kube
 sudo kubectl apply -f namespace.yaml
 sudo kubectl apply -f coordinator-deployment.yaml
 sudo kubectl apply -f id-generation-deployment.yaml
@@ -85,7 +85,7 @@ sudo kubectl logs deployment/id-service -n id-system --all-containers
 
 
 # Remove services
-cd ./nkube
+cd ./kube
 sudo kubectl delete -f coordinator-deployment.yaml
 sudo kubectl delete -f id-generation-deployment.yaml
 sudo kubectl delete -f ingress.yaml
@@ -93,17 +93,4 @@ sudo kubectl delete -f namespace.yaml
 
 # Uninstall k3s
 # /usr/local/bin/k3s-uninstall.sh
-```
-
-```bash
-
-docker build -t id-generator ./
-
-docker container run -p 8080:8080 -d --name id-generator id-generator
-
-docker container stop id-generator
-docker container rm id-generator
-docker build -t id-generator ./
-docker container run -p 8000:8000 -d --name id-generator id-generator
-
 ```
