@@ -5,7 +5,6 @@ COPY .. /app
 
 RUN pip install -r requirements.txt
 
-RUN python3 -m pip uninstall pip
 
 EXPOSE 8000
 

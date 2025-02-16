@@ -109,6 +109,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/health")
+def health_check():
+    return {"status": "OK", 'machine_id': MACHINE_ID, 'pod_uid': POD_UID, 'coordinator_url': COORDINATOR_URL}
 
 @app.get("/generate-id")
 def generate_id_integer():
