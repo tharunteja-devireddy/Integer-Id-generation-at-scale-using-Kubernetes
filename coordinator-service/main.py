@@ -18,11 +18,6 @@ HEARTBEAT_DELAY = 30              # Time in seconds before marking a machine ID 
 SHELVE_TIME = 120                 # 5 minutes before reassigning a dead ID
 EXPIRED_ID_CLEANUP_INTERVAL = 20  # Time in seconds between cleanup checks
 
-# Note: Condition to prevent duplicate ID assignment a network failure occurs between a pod and the coordinator
-# and the pod is still alive and serving requests.
-# HEARTBEAT_DELAY + SHELVE_TIME (coordinator service) > HEARTBEAT_INTERVAL * MAX_HEARTBEAT_FAILURES (id service)
-# 30 + 120 > 10 * 5
-
 
 LOCK = asyncio.Lock()
 
