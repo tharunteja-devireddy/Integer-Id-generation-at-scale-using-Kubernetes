@@ -1,11 +1,13 @@
 
-## Commands
+### Commands
 
+List of all the commands used in the project
 
 #### Start services locally, coordinator-service and id-service
 ```bash
 uvicorn coordinator-service.main:app --reload --host "0.0.0.0" --port 5000 --log-level debug
 uvicorn id-service.main:app --reload --host "0.0.0.0" --port 8000 --log-level debug
+
 ```
 
 
@@ -81,8 +83,9 @@ sudo kubectl logs deployment/id-service -n id-system --all-containers
 ````
 
 
-#### Remove services
+#### Clean up services
 ```bash
+# remove k8s services
 cd ./kube
 sudo kubectl delete -f coordinator-deployment.yaml
 sudo kubectl delete -f id-generation-deployment.yaml
@@ -94,9 +97,11 @@ sudo kubectl delete -f namespace.yaml
 sudo kubectl get all -n id-system
 
 
-# Stop and remove local registry
+# Stop and remove local docker registry
 docker stop local-registry
 docker rm local-registry
+
+  
 ```
 
 
