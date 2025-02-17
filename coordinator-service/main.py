@@ -89,7 +89,9 @@ async def request_machine_id(pod_uid: str):
             print(f"Machine ID {machine_id} assigned to Pod UID {pod_uid}")
             return {"machine_id": machine_id, "status": "ID assigned"}
 
-    return {"status": "No ID available, retry in 5 minutes"}
+        else:
+            print("ID Pool is empty. No IDs available.")
+            return {"status": "No ID available"}
 
 
 @app.get("/heartbeat/")
