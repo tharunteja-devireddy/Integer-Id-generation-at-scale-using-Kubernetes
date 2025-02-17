@@ -1,6 +1,7 @@
 
 import os
 import time
+import uuid
 import requests
 from snowflake import SnowflakeGenerator
 from fastapi import FastAPI
@@ -11,8 +12,9 @@ import threading
 
 COORDINATOR_URL = os.getenv("COORDINATOR_URL", "http://localhost:5000")
 
-CURRENT_POD = os.getenv("POD_NAME", "id-generator-0")
-POD_UID = os.getenv('POD_UID', '0')  # Unique identifier for the pod
+# Get the pod UID from env variables(injected into containers by Kubernetes),
+# or generate a random one when running locally or in a non-Kubernetes environment
+POD_UID = os.getenv('POD_UID', str(uuid.uuid4()))
 
 MACHINE_ID = None   # This will be assigned by the coordinator
 EPOCH = 1739526270  # 2025-02-14 15:13:00
@@ -37,6 +39,9 @@ def request_machine_id():
                 print(f"Assigned Machine ID: {MACHINE_ID}")
                 integer_id_generator = SnowflakeGenerator(instance=MACHINE_ID, epoch=EPOCH)
                 return
+            else:
+                print(f"Unable to get machine ID: {data['status']}")
+
         except Exception as e:
             print(f"Error requesting machine ID: {e}")
 
