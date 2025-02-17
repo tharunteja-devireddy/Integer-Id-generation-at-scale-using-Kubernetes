@@ -1,42 +1,37 @@
 
+# Functions used to test whether the services are up and running
+
 import requests
 
-BASE_URL = 'http://localhost:80'
+
+COORDINATOR_SERVICE_URL = 'http://localhost:5000'
+ID_SERVICE_URL = 'http://localhost:8000'
 
 
-def check_health():
-    response = requests.get(f'{BASE_URL}/health')
+def coordinator_service_health():
+    response = requests.get(f'{COORDINATOR_SERVICE_URL}/health')
     return response.json()
 
 
-def get_token(username, password):
-    response = requests.post(f'{BASE_URL}/token', data={
-        'username': username,
-        'password': password
-    })
-    return response.json()['access_token']
+def coordinator_service_status():
+    response = requests.get(f'{COORDINATOR_SERVICE_URL}/status')
+    return response.json()
 
 
-def generate_id(token):
+def id_service_health():
+    response = requests.get(f'{ID_SERVICE_URL}/health')
+    return response.json()
+
+
+def generate_id():
     # use the token to generate id by hitting /generate-id
-    response = requests.get(f'{BASE_URL}/generate-id', headers={
-        'Authorization': f'Bearer {token}'
-    })
-
-    return response.json()['uuid']
-
-
-def generate_integer_id(token):
-
-    # use the token to generate id by hitting /generate-id
-    response = requests.get(f'{BASE_URL}/generate-id-integer', headers={
-        'Authorization': f'Bearer {token}'
-    })
-
+    response = requests.get(f'{ID_SERVICE_URL}/generate-id')
     return response.json()['id']
 
+
+
 if __name__ == '__main__':
-    print(check_health())
-    token = get_token('admin', 'admin')
-    print(generate_id(token))
-    print(generate_integer_id(token))
+    print('Coordinator Service Health  :', coordinator_service_health())
+    print('Coordinator Service Status  :', coordinator_service_status())
+    print('ID Service Health           :', id_service_health())
+    print('Generated ID                :', generate_id())
