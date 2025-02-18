@@ -23,6 +23,9 @@ docker run -d -p 5001:5000 --name local-registry registry:2
 docker tag id-service localhost:5001/id-service
 docker tag coordinator-service localhost:5001/coordinator-service
 
+# Run local registry
+docker run -d -p 5001:5000 --name local-registry registry:2
+
 # Push images to local registry
 docker push localhost:5001/id-service
 docker push localhost:5001/coordinator-service
@@ -64,7 +67,11 @@ mirrors:
 ```bash
 cd ./kube
 sudo kubectl apply -f namespace.yaml
-sudo kubectl apply -f coordinator-deployment.yaml
+sudo kubectl apply -f coordinator-deployment-active.yaml
+sudo kubectl apply -f coordinator-deployment-standby.yaml
+sudo kubectl apply -f coordinator-service.yaml
+sudo kubectl apply -f priority-classes.yaml
+sudo kubectl apply -f pod-disruption-budget.yaml
 sudo kubectl apply -f id-generation-deployment.yaml
 sudo kubectl apply -f ingress.yaml
 
@@ -77,7 +84,8 @@ sudo kubectl scale deployment id-service --replicas=2 -n id-system
 sudo kubectl scale deployment coordinator-service --replicas=1 -n id-system
 
 # View service logs
-sudo kubectl logs deployment/coordinator-service -n id-system --all-containers
+sudo kubectl logs deployment/coordinator-service-active -n id-system --all-containers
+sudo kubectl logs deployment/coordinator-service-standby -n id-system --all-containers
 sudo kubectl logs deployment/id-service -n id-system --all-containers
 # -f for stream
 ````
@@ -87,7 +95,11 @@ sudo kubectl logs deployment/id-service -n id-system --all-containers
 ```bash
 # remove k8s services
 cd ./kube
-sudo kubectl delete -f coordinator-deployment.yaml
+sudo kubectl delete -f coordinator-deployment-active.yaml
+sudo kubectl delete -f coordinator-deployment-standby.yaml  
+sudo kubectl delete -f coordinator-service.yaml
+sudo kubectl delete -f priority-classes.yaml
+sudo kubectl delete -f pod-disruption-budget.yaml
 sudo kubectl delete -f id-generation-deployment.yaml
 sudo kubectl delete -f ingress.yaml
 sudo kubectl delete -f namespace.yaml
