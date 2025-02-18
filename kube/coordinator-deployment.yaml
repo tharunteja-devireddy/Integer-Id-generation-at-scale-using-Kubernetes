@@ -39,4 +39,4 @@ spec:
     - protocol: TCP
       port: 5000         # The service port
       targetPort: 5000   # The container port
-  type: LoadBalancer     # <== Changed from headless to LoadBalancer
+  type: LoadBalancer
