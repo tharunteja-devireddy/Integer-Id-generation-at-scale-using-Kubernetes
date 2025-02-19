@@ -110,5 +110,5 @@ def load_test_no_storage(num_requests=100, num_workers=8):
 
 
 # Example: Run the load test using only 4 CPU cores
-load_test(num_requests=1_000, num_workers=4)
+load_test(num_requests=10_000, num_workers=4)
 # load_test_no_storage(num_requests=100_000, num_workers=4)
