@@ -4,8 +4,8 @@ import aiosqlite
 import asyncio
 from multiprocessing import Pool, Manager
 
-# runs on 8000 locally, on 80 in kubernetes
-ID_SERVICE_URL = "http://localhost:80"  # Replace with actual URL
+ID_SERVICE_URL = 'http://localhost:8000' # on local
+# ID_SERVICE_URL = 'http://localhost:80'   # on kubernetes
 
 async def async_store_worker(queue):
     """Worker that writes IDs from the queue to SQLite asynchronously."""
@@ -112,4 +112,4 @@ def load_test_no_storage(num_requests=100, num_workers=8):
 
 # Example: Run the load test using only 4 CPU cores
 load_test(num_requests=50_000, num_workers=12)
-# load_test_no_storage(num_requests=100_000, num_workers=4)
+# load_test_no_storage(num_requests=100_000, num_workers=12)

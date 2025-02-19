@@ -3,7 +3,9 @@
 
 import requests
 
-ID_SERVICE_URL = 'http://localhost:8000'
+
+ID_SERVICE_URL = 'http://localhost:8000' # on local
+# ID_SERVICE_URL = 'http://localhost:80'   # on kubernetes
 
 
 def id_service_health():
