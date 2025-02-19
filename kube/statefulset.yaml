@@ -17,7 +17,7 @@ spec:
       containers:
       - name: id-generator-container
         image: localhost:5001/id-generator:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
           - containerPort: 8000
         env:

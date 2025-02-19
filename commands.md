@@ -13,13 +13,21 @@ Pod,Container,Services Names: id-generator-{}
 
 #### Start service locally
 ```bash
+# Setup up python env with requirements
 uvicorn id-generator.main:app --reload --host "0.0.0.0" --port 8000 --log-level debug
+
+# Setup go, install dependencies and run
+go run main.go
 ```
 
 
 ####  Build images and push them into local registry
 ```bash
-docker build -t id-generator ./id-generator/
+# Use Fastapi service
+# docker build -t id-generator ./id-generator/
+
+# Use Go service
+docker build -t id-generator ./id-generator-go/
 
 # Re-tag images
 docker tag id-generator localhost:5001/id-generator
@@ -108,7 +116,9 @@ docker rm local-registry
 docker image rm localhost:5001/id-generator
 docker image rm id-generator
 
-  
+# Command to remove all images
+# docker rmi $(docker images -q)
+
 ```
 
 
