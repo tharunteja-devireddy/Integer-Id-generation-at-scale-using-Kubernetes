@@ -6,9 +6,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 
-
-COORDINATOR_URL = os.getenv("COORDINATOR_URL", "http://localhost:5000")
-
 NODE_NAME = os.getenv('NODE_NAME')
 POD_NAME = os.getenv('POD_NAME', 'id-generator-1023')
 POD_UID = os.getenv('POD_UID')
@@ -19,7 +16,7 @@ MACHINE_ID = int(re.search(r"\d+", POD_NAME).group())
 integer_id_generator = SnowflakeGenerator(instance=MACHINE_ID, epoch=EPOCH)
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware, # type: ignore
@@ -31,7 +28,7 @@ app.add_middleware(
 
 @app.get("/health")
 def health_check():
-    return {"status": "OK", 'machine_id': MACHINE_ID, 'pod_uid': POD_UID, 'coordinator_url': COORDINATOR_URL}
+    return {"status": "OK", 'machine_id': MACHINE_ID, 'pod_uid': POD_UID}
 
 @app.get("/generate-id")
 def generate_id_integer():
