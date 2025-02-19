@@ -3,32 +3,36 @@
 
 List of all the commands used in the project
 
-#### Start services locally, coordinator-service and id-service
-```bash
-uvicorn coordinator-service.main:app --reload --host "0.0.0.0" --port 5000 --log-level debug
-uvicorn id-service.main:app --reload --host "0.0.0.0" --port 8000 --log-level debug
 
+Project names      : Integer Id Generation at Scale -> ID Generation System
+Service name       : id-generator # FastAPI service name
+Container name     : id-generator # Container name
+Cluster Namespace  : id-system  # K8s namespace name
+Pod,Container,Services Names: id-generator-{} 
+
+
+#### Start service locally
+```bash
+uvicorn id-generator.main:app --reload --host "0.0.0.0" --port 8000 --log-level debug
 ```
 
 
 ####  Build images and push them into local registry
 ```bash
-docker build -t id-service ./id-service/
-docker build -t coordinator-service ./coordinator-service/
+docker build -t id-generator ./id-generator/
+
 
 # Creating a local registry
 docker run -d -p 5001:5000 --name local-registry registry:2
 
 # Re-tag images
-docker tag id-service localhost:5001/id-service
-docker tag coordinator-service localhost:5001/coordinator-service
+docker tag id-generator localhost:5001/id-generator
 
 # Run local registry
 docker run -d -p 5001:5000 --name local-registry registry:2
 
 # Push images to local registry
-docker push localhost:5001/id-service
-docker push localhost:5001/coordinator-service
+docker push localhost:5001/id-generator
 ```
 
 
@@ -67,12 +71,9 @@ mirrors:
 ```bash
 cd ./kube
 sudo kubectl apply -f namespace.yaml
-sudo kubectl apply -f coordinator-deployment-active.yaml
-sudo kubectl apply -f coordinator-deployment-standby.yaml
-sudo kubectl apply -f coordinator-service.yaml
-sudo kubectl apply -f priority-classes.yaml
-sudo kubectl apply -f pod-disruption-budget.yaml
-sudo kubectl apply -f id-generation-deployment.yaml
+sudo kubectl apply -f statefulset.yaml
+sudo kubectl apply -f headless-service.yaml
+sudo kubectl apply -f service.yaml
 sudo kubectl apply -f ingress.yaml
 
 
@@ -80,13 +81,10 @@ sudo kubectl apply -f ingress.yaml
 sudo kubectl get pods -n id-system
 
 # Scale services
-sudo kubectl scale deployment id-service --replicas=2 -n id-system
-sudo kubectl scale deployment coordinator-service --replicas=1 -n id-system
+sudo kubectl scale deployment id-generator --replicas=2 -n id-system
 
 # View service logs
-sudo kubectl logs deployment/coordinator-service-active -n id-system --all-containers
-sudo kubectl logs deployment/coordinator-service-standby -n id-system --all-containers
-sudo kubectl logs deployment/id-service -n id-system --all-containers
+sudo kubectl logs deployment/id-generator -n id-system --all-containers
 # -f for stream
 ````
 
@@ -95,12 +93,9 @@ sudo kubectl logs deployment/id-service -n id-system --all-containers
 ```bash
 # remove k8s services
 cd ./kube
-sudo kubectl delete -f coordinator-deployment-active.yaml
-sudo kubectl delete -f coordinator-deployment-standby.yaml  
-sudo kubectl delete -f coordinator-service.yaml
-sudo kubectl delete -f priority-classes.yaml
-sudo kubectl delete -f pod-disruption-budget.yaml
-sudo kubectl delete -f id-generation-deployment.yaml
+sudo kubectl delete -f statefulset.yaml
+sudo kubectl delete -f headless-service.yaml
+sudo kubectl delete -f service.yaml
 sudo kubectl delete -f ingress.yaml
 sudo kubectl delete -f namespace.yaml
 
