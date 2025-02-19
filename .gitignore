@@ -1,2 +1,3 @@
 /venv
-id-generator.tar
+/id-generator-go/id-generator
+/testing/generated_ids.db
