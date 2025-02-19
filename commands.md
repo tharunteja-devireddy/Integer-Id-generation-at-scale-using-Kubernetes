@@ -21,10 +21,6 @@ uvicorn id-generator.main:app --reload --host "0.0.0.0" --port 8000 --log-level 
 ```bash
 docker build -t id-generator ./id-generator/
 
-
-# Creating a local registry
-docker run -d -p 5001:5000 --name local-registry registry:2
-
 # Re-tag images
 docker tag id-generator localhost:5001/id-generator
 
@@ -81,10 +77,10 @@ sudo kubectl apply -f ingress.yaml
 sudo kubectl get pods -n id-system
 
 # Scale services
-sudo kubectl scale deployment id-generator --replicas=2 -n id-system
+sudo kubectl scale statefulset id-generator --replicas=2 -n id-system
 
 # View service logs
-sudo kubectl logs deployment/id-generator -n id-system --all-containers
+sudo kubectl logs statefulset/id-generator -n id-system --all-containers
 # -f for stream
 ````
 
@@ -107,6 +103,10 @@ sudo kubectl get all -n id-system
 # Stop and remove local docker registry
 docker stop local-registry
 docker rm local-registry
+
+# Remove images from local registry
+docker image rm localhost:5001/id-generator
+docker image rm id-generator
 
   
 ```

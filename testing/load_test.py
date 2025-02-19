@@ -4,7 +4,8 @@ import aiosqlite
 import asyncio
 from multiprocessing import Pool, Manager
 
-ID_SERVICE_URL = "http://localhost:8000"  # Replace with actual URL
+# runs on 8000 locally, on 80 in kubernetes
+ID_SERVICE_URL = "http://localhost:80"  # Replace with actual URL
 
 async def async_store_worker(queue):
     """Worker that writes IDs from the queue to SQLite asynchronously."""
@@ -61,7 +62,7 @@ async def store_ids_async(ids):
     await queue.put(None)
     await writer_task  # Wait for the writer to finish
 
-def load_test(num_requests=100, num_workers=8):
+def load_test(num_requests=100, num_workers=4):
     """Run the load test with multiprocessing for ID generation and async for storing."""
 
     # Clear database asynchronously
@@ -110,5 +111,5 @@ def load_test_no_storage(num_requests=100, num_workers=8):
 
 
 # Example: Run the load test using only 4 CPU cores
-load_test(num_requests=10_000, num_workers=4)
+load_test(num_requests=50_000, num_workers=12)
 # load_test_no_storage(num_requests=100_000, num_workers=4)

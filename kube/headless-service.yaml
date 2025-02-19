@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: id-generator
+  namespace: id-system
+spec:
+  # "Headless" service for StatefulSet stable DNS
+  clusterIP: None
+  selector:
+    app: id-generator
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000

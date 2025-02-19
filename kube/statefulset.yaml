@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: id-generator
+  namespace: id-system
+spec:
+  replicas: 8  # Number of pods
+  serviceName: "id-generator"   # Must match the Headless Service above
+  selector:
+    matchLabels:
+      app: id-generator
+  template:
+    metadata:
+      labels:
+        app: id-generator
+    spec:
+      containers:
+      - name: id-generator-container
+        image: localhost:5001/id-generator:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8000
+        env:
+        - name: NODE_NAME               # Inject node name into container
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName  # Inject pod name into container
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid  # Inject pod UID into container
+
