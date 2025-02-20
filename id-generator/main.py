@@ -36,7 +36,14 @@ app.add_middleware(
 
 @app.get("/health")
 def health_check():
-    return {"status": "OK", 'machine_id': MACHINE_ID, 'pod_uid': POD_UID, 'node_name': NODE_NAME, 'pod_name': POD_NAME}
+    return {
+        "status": "OK",
+        'machine_id': MACHINE_ID,
+        'pod_uid': POD_UID,
+        'node_name': NODE_NAME,
+        'pod_name': POD_NAME,
+        "language": "Python"
+    }
 
 @app.get("/generate-id")
 def generate_id_integer():

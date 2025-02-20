@@ -18,15 +18,19 @@ import (
 
 var (
     node       *snowflake.Node
-    machineID  int
-    podUID     string
 	nodeName   string
+    podUID     string
 	podName	string
+    machineID  int
 )
 
 func main() {
+    
+    nodeName = os.Getenv("NODE_NAME")
+    podUID = os.Getenv("POD_UID")
+
     // Get POD_NAME or use default
-	podName := os.Getenv("POD_NAME")
+	podName = os.Getenv("POD_NAME")
     if podName == "" {
         podName = "id-generator-1023"
     }
@@ -77,6 +81,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		"pod_uid": podUID,
 		"node_name": nodeName,
 		"pod_name": podName,
+        "language":  "Go"
     }
     _ = json.NewEncoder(w).Encode(resp)
 }
