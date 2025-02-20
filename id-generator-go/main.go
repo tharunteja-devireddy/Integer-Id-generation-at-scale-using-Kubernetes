@@ -11,6 +11,11 @@ import (
 	"github.com/bwmarrin/snowflake"
 )
 
+// nodeName, podName, podUID are injected into the container by Kubernetes
+// nodeName, podUID are just for dubugging
+// podName is used to extract the machine ID
+
+
 var (
     node       *snowflake.Node
     machineID  int
