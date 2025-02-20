@@ -81,7 +81,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		"pod_uid": podUID,
 		"node_name": nodeName,
 		"pod_name": podName,
-        "language":  "Go"
+        "language":  "Go",
     }
     _ = json.NewEncoder(w).Encode(resp)
 }
