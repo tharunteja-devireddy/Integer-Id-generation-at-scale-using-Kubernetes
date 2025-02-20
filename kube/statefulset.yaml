@@ -5,7 +5,7 @@ metadata:
   namespace: id-system
 spec:
   replicas: 8  # Number of pods
-  serviceName: "id-generator"   # Must match the Headless Service above
+  serviceName: "id-generator-access"
   selector:
     matchLabels:
       app: id-generator

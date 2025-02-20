@@ -68,7 +68,6 @@ mirrors:
 cd ./kube
 sudo kubectl apply -f namespace.yaml
 sudo kubectl apply -f statefulset.yaml
-sudo kubectl apply -f headless-service.yaml
 sudo kubectl apply -f service.yaml
 sudo kubectl apply -f ingress.yaml
 
@@ -90,7 +89,6 @@ sudo kubectl logs statefulset/id-generator -n id-system --all-containers
 # remove k8s services
 cd ./kube
 sudo kubectl delete -f statefulset.yaml
-sudo kubectl delete -f headless-service.yaml
 sudo kubectl delete -f service.yaml
 sudo kubectl delete -f ingress.yaml
 sudo kubectl delete -f namespace.yaml

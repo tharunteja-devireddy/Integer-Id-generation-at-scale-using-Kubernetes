@@ -241,7 +241,6 @@ sudo systemctl restart k3s
 cd ./kube
 sudo kubectl apply -f namespace.yaml
 sudo kubectl apply -f statefulset.yaml
-sudo kubectl apply -f headless-service.yaml
 sudo kubectl apply -f service.yaml
 sudo kubectl apply -f ingress.yaml
 ```
@@ -272,7 +271,6 @@ If you deployed the FastAPI version, the interactive API documentation is availa
 # remove k8s services  
 cd ./kube  
 sudo kubectl delete -f statefulset.yaml  
-sudo kubectl delete -f headless-service.yaml  
 sudo kubectl delete -f service.yaml  
 sudo kubectl delete -f ingress.yaml  
 sudo kubectl delete -f namespace.yaml  
