@@ -46,7 +46,6 @@ Before using this project, it's recommended to have knowledge of:
 ├── id-generator/     # id service implemented in python/fastapi
 ├── id-generator-go/  # id service implemented in go
 ├── kube/             # Dir containing all k8s config files
-│   ├── headless-service.yaml
 │   ├── ingress.yaml            
 │   ├── namespace.yaml         
 │   ├── service.yaml             
@@ -317,6 +316,3 @@ To achieve higher throughput and stable performance:
 - Use **resource limits** in Kubernetes to prevent excessive resource contention.
 
 
-## Conclusion
-
-The **ID Generator** project efficiently generates **64-bit time-sortable integer IDs** using Kubernetes and a distributed architecture. With robust **failure handling**, **scalability**, and **high availability**, it ensures unique ID generation even in large-scale applications. By leveraging **Snowflake IDs** and a **heartbeat-based coordinator**, this system provides **fault tolerance**, **high throughput**, and **long-term reliability**.
