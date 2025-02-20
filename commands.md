@@ -3,21 +3,13 @@
 
 List of all the commands used in the project
 
-
-Project names      : Integer Id Generation at Scale -> ID Generation System
-Service name       : id-generator # FastAPI service name
-Container name     : id-generator # Container name
-Cluster Namespace  : id-system  # K8s namespace name
-Pod,Container,Services Names: id-generator-{} 
-
-
 #### Start service locally
 ```bash
 # Setup up python env with requirements
 uvicorn id-generator.main:app --reload --host "0.0.0.0" --port 8000 --log-level debug
 
 # Setup go, install dependencies and run
-go run main.go
+go run id-generator-go.main.go
 ```
 
 
