@@ -19,7 +19,7 @@ EPOCH = 1739526270  # 2025-02-14 15:13:00
 # Extract the machine ID from the pod name
 MACHINE_ID = int(re.search(r"\d+", POD_NAME).group())
 
-# Initialize snowflkae id generator
+# Initialize snowflake id generator
 integer_id_generator = SnowflakeGenerator(instance=MACHINE_ID, epoch=EPOCH)
 
 
