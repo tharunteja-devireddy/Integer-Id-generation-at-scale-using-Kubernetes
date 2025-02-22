@@ -27,11 +27,12 @@ Just **deploy the service on Kubernetes** and scale replicas as needed.
 - **Never exceed 1024 replicas** because Snowflake uses 10 bits for worker IDs (0–1023).
 - We use a **StatefulSet**—not a **Deployment**—because **StatefulSets** guarantee stable, ordinal pod names (e.g., `pod-0`, `pod-1`). These **ordinal numbers** act as each pod’s **unique worker ID** in the Snowflake algorithm, ensuring no ID collisions across pods.
 - During the course of this project we will be using a **k3s** cluster for local testing, as it provides a lightweight Kubernetes environment to easily set up and validate the entire configuration.
-## Prerequisites
-Before using this project, it's recommended to have knowledge of:
-- **Docker**: Understanding containerization.
+## Prerequisites  
+Before using this project, it's recommended to have knowledge of:  
+- **Basic Python and Go Environment Setup**: Understanding how to set up and run Python and Go projects.  
+- **Twitter Snowflake Algorithm**: How unique Integer IDs are generated.  
+- **Docker**: Understanding containerization.  
 - **Kubernetes (k3s)**: For deployment and scaling.
-- **Twitter Snowflake Algorithm**: How unique IDs are generated.
 ## Project Structure
 Below is the structure of the project, along with a description of what each file and folder represents.
 ```txt
