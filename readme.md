@@ -250,7 +250,7 @@ sudo kubectl get all -n id-system
 docker stop local-registry  
 docker rm local-registry  
   
-# Remove images from local registry  
+# Remove images
 docker image rm localhost:5001/id-generator  
 docker image rm id-generator
 ```
