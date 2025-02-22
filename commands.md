@@ -81,7 +81,6 @@ sudo kubectl get pods -n id-system
 
 # Scale services
 sudo kubectl scale deployment id-service --replicas=2 -n id-system
-sudo kubectl scale deployment coordinator-service --replicas=1 -n id-system
 
 # View service logs
 sudo kubectl logs deployment/coordinator-service-active -n id-system --all-containers
@@ -113,13 +112,12 @@ sudo kubectl get all -n id-system
 docker stop local-registry
 docker rm local-registry
 
-# Remove images from local registry
-docker rmi localhost:5001/id-service
-docker rmi localhost:5001/coordinator-service
+# Remove images
+docker image rm localhost:5001/id-service
+docker image rm id-service
+docker image rm localhost:5001/coordinator-service
+docker image rm coordinator-service
 
-# Remove images from local
-docker rmi id-service
-docker rmi coordinator-service
 
   
 ```

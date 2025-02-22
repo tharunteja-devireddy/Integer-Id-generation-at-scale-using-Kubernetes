@@ -173,10 +173,31 @@ sudo kubectl logs deployment/id-service -n id-system --all-containers
 ### 14. Cleanup (Refer to commands.md for more details)
 
 ```bash
-sudo kubectl delete -f coordinator-deployment.yaml
+cd ./kube
+sudo kubectl delete -f coordinator-deployment-active.yaml
+sudo kubectl delete -f coordinator-deployment-standby.yaml  
+sudo kubectl delete -f coordinator-service.yaml
+sudo kubectl delete -f priority-classes.yaml
+sudo kubectl delete -f pod-disruption-budget.yaml
 sudo kubectl delete -f id-generation-deployment.yaml
 sudo kubectl delete -f ingress.yaml
 sudo kubectl delete -f namespace.yaml
+
+
+# Verify services are removed
+sudo kubectl get all -n id-system
+
+
+# Stop and remove local docker registry
+docker stop local-registry
+docker rm local-registry
+
+# Remove images
+docker image rm localhost:5001/id-service
+docker image rm id-service
+docker image rm localhost:5001/coordinator-service
+docker image rm coordinator-service
+
 ```
 
 ---

@@ -1,5 +1,5 @@
 
-  This documentation describes the **Coordinator Service** and **ID Generation Service**, their interactions, failure handling, and recovery mechanisms.  
+This documentation describes the **Coordinator Service** and **ID Generation Service**, their interactions, failure handling, and recovery mechanisms.  
   
 ## **Coordinator Service**  
 The **Coordinator Service** is responsible for managing machine IDs, tracking heartbeats, and reclaiming IDs from inactive pods.    
