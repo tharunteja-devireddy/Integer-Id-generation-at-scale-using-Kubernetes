@@ -113,14 +113,6 @@ sudo kubectl get all -n id-system
 docker stop local-registry
 docker rm local-registry
 
-# Remove images from local registry
-docker rmi localhost:5001/id-service
-docker rmi localhost:5001/coordinator-service
-
-# Remove images from local
-docker rmi id-service
-docker rmi coordinator-service
-
   
 ```
 
