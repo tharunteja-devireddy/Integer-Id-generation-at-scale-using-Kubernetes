@@ -80,15 +80,16 @@ def generate_id_integer():
     return {"id": next(integer_id_generator)}
 ```
 
-#### ⚠️ Collisions
-- **Cross-pod collisions are impossible** because each pod has a unique **worker ID** (derived from the pod’s ordinal name).
-- **Same-pod collisions are possible** in the **Python** implementation because the `snowflake-id` package is **not thread-safe**. Under high concurrency, two threads within one pod could generate the same ID (though this is rare in Python due to the GIL).
-In contrast, the **Go package** [`github.com/bwmarrin/snowflake`](https://github.com/bwmarrin/snowflake) is **thread-safe** and ideal for multithreaded environments.
 
-👉 **Recommendation:**
+#### Collisions
 
-- Use **Python** for testing and learning.
-- Use **Go** for production or high-concurrency scenarios.
+- **Cross-pod collisions are impossible** because each pod has a unique **machine ID** derived from the pod's ordinal name.
+- **Same-pod collisions are also impossible** in both implementations:
+  - The **Python** implementation runs a single-threaded **uvicorn worker** (1 worker per pod by default), so only one request can generate an ID at a time — no locking needed, no races possible.
+  - The **Go** implementation uses [`github.com/bwmarrin/snowflake`](https://github.com/bwmarrin/snowflake) which is **thread-safe internally** via a mutex, correctly handling Go's goroutine-per-request concurrency model.
+
+👉 Both implementations are **production-safe**. Choose based on your stack preference — Python if your team is Python-native, Go if you want lower latency and smaller container images.
+
 ## Setup Process
 
 ### **1. Clone the Repository**
@@ -285,4 +286,5 @@ To achieve higher throughput and stable performance:
 
 ## Conclusion
 
-This project demonstrates how to deploy a Snowflake-based ID generation service at scale using Kubernetes (k3s) and a StatefulSet for stable, unique worker IDs. For most real-world production needs, the Go version is recommended due to its thread safety and better performance.
+This project demonstrates how to deploy a Snowflake-based ID generation service at scale using Kubernetes (k3s) and a StatefulSet for stable, unique worker IDs. 
+For most real-world production needs, the Go version is recommended due to its lower latency, smaller container image size, and better performance.
