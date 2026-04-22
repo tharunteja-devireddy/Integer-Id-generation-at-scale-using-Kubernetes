@@ -1,3 +1,6 @@
+.idea
+.vscode
+.venv
 /venv
 /id-generator-go/id-generator
 /testing/generated_ids.db
